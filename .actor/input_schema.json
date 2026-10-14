@@ -1,0 +1,79 @@
+{
+    "title": "Supplier Quote Comparator input",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "productQuery": {
+            "title": "Product to search for",
+            "type": "string",
+            "description": "Product name, ideally with the model number. The Actor searches Google, picks shop product pages and compares them. Ignored if you give product URLs below.",
+            "editor": "textfield",
+            "prefill": "Logitech MX Master 3S"
+        },
+        "productUrls": {
+            "title": "Product page URLs (optional)",
+            "type": "array",
+            "description": "Instead of searching, give the same product on two or more supplier sites yourself.",
+            "editor": "requestListSources"
+        },
+        "quantity": {
+            "title": "Quantity",
+            "type": "integer",
+            "description": "How many units you want to buy. Used to compute totals.",
+            "default": 1,
+            "minimum": 1
+        },
+        "requirements": {
+            "title": "Buyer requirements",
+            "type": "string",
+            "description": "Optional, in plain language, e.g. 'needed within 5 days, prefer EU suppliers'.",
+            "editor": "textarea"
+        },
+        "anthropicApiKey": {
+            "title": "Anthropic API key",
+            "type": "string",
+            "description": "Optional. With a key, Claude writes the comparison and flags risks. Without one, you get a rule-based summary.",
+            "isSecret": true
+        },
+        "countryCode": {
+            "title": "Search country",
+            "type": "string",
+            "description": "Google country to search in (e.g. cz, sk, de, pl).",
+            "default": "cz",
+            "sectionCaption": "Search settings"
+        },
+        "searchSuffix": {
+            "title": "Search suffix",
+            "type": "string",
+            "description": "Word added to the search to favour shop pages (e.g. 'cena' for Czech, 'price' for English). Leave empty to search the product name only.",
+            "default": "cena"
+        },
+        "maxShops": {
+            "title": "Max shops to compare",
+            "type": "integer",
+            "description": "How many shop pages to take from the search results (one per shop).",
+            "default": 6,
+            "minimum": 2,
+            "maximum": 15
+        },
+        "excludeDomains": {
+            "title": "Extra domains to skip",
+            "type": "array",
+            "description": "Domains to ignore in search results, in addition to built-in marketplaces and price-comparison sites.",
+            "editor": "stringList"
+        },
+        "model": {
+            "title": "Claude model",
+            "type": "string",
+            "description": "Model used for the write-up.",
+            "default": "claude-sonnet-5-5",
+            "sectionCaption": "Advanced"
+        },
+        "useProxy": {
+            "title": "Use Apify Proxy",
+            "type": "boolean",
+            "description": "Route requests through Apify Proxy to avoid blocks.",
+            "default": true
+        }
+    }
+}
