@@ -33,20 +33,23 @@
             "title": "Anthropic API key",
             "type": "string",
             "description": "Optional. With a key, Claude writes the comparison and flags risks. Without one, you get a rule-based summary.",
-            "isSecret": true
+            "isSecret": true,
+            "editor": "textfield"
         },
         "countryCode": {
             "title": "Search country",
             "type": "string",
             "description": "Google country to search in (e.g. cz, sk, de, pl).",
             "default": "cz",
-            "sectionCaption": "Search settings"
+            "sectionCaption": "Search settings",
+            "editor": "textfield"
         },
         "searchSuffix": {
             "title": "Search suffix",
             "type": "string",
             "description": "Word added to the search to favour shop pages (e.g. 'cena' for Czech, 'price' for English). Leave empty to search the product name only.",
-            "default": "cena"
+            "default": "cena",
+            "editor": "textfield"
         },
         "maxShops": {
             "title": "Max shops to compare",
@@ -67,7 +70,8 @@
             "type": "string",
             "description": "Model used for the write-up.",
             "default": "claude-sonnet-5-5",
-            "sectionCaption": "Advanced"
+            "sectionCaption": "Advanced",
+            "editor": "textfield"
         },
         "useProxy": {
             "title": "Use Apify Proxy",
