@@ -35,7 +35,7 @@ export function rankQuotes(quotes, { quantity = 1, weights = { price: 0.6, deliv
     return { ranked, currencies, mixedCurrencies: currencies.length > 1 };
 }
 
-export function buildPrompt({ ranked, mixedCurrencies }, failed, { quantity, requirements }) {
+export function buildPrompt({ ranked, mixedCurrencies }, failed, { quantity, requirements, productQuery }) {
     const rows = ranked.map((q) => ({
         rank: q.rank,
         supplier: q.supplier,
@@ -53,7 +53,7 @@ export function buildPrompt({ ranked, mixedCurrencies }, failed, { quantity, req
 
     return `You are a procurement analyst preparing a short quote comparison for a buyer.
 
-Quantity needed: ${quantity}
+${productQuery ? `Product searched for: "${productQuery}" (shops were found automatically by web search, so check carefully that every offer is the same product and variant)\n` : ''}Quantity needed: ${quantity}
 Buyer requirements: ${requirements || 'none given'}
 ${mixedCurrencies ? 'Note: quotes are in different currencies. Do not convert with invented rates; say a conversion is needed.\n' : ''}
 Scraped quotes (JSON):
@@ -69,7 +69,8 @@ A table: supplier, unit price, total, stock, delivery.
 ## Risks and checks before ordering
 Up to 4 bullets: e.g. products that may not be the same item (different SKU/name), missing delivery data, stock risk, data scraped by heuristic rather than structured data.
 
-Only use facts from the JSON. If something is unknown, say so.`;
+Only use facts from the JSON. If something is unknown, say so.
+Write availability in plain words (in stock / out of stock / unknown), not as raw codes.`;
 }
 
 export async function claudeSummary(prompt, { apiKey, model }) {

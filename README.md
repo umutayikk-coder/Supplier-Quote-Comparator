@@ -1,11 +1,12 @@
 # Supplier Quote Comparator
 
-An Apify Actor that does the first pass of a buyer's job: give it the same product on several supplier sites, and it scrapes price, stock and delivery time from each page, ranks the offers, and has Claude write a short RFQ-style comparison with a recommendation and the risks to check before ordering.
+An Apify Actor that does the first pass of a buyer's job: type a product name (or give shop URLs yourself), and it finds the shops selling it, scrapes price, stock and delivery time from each page, ranks the offers, and has Claude write a short RFQ-style comparison with a recommendation and the risks to check before ordering.
 
 I work in procurement digitalization, where comparing quotes by hand (copy price, copy lead time, paste into Excel, repeat) is a daily chore. This is a small prototype of how scraping plus an LLM can take that over.
 
 ## What it does
 
+0. **Finds shops** (search mode): runs Apify's [Google Search Scraper](https://apify.com/apify/google-search-scraper) for the product name, drops marketplaces, price-comparison sites, reviews and duplicate shops, and keeps one product page per shop.
 1. **Scrapes** each URL with Crawlee's `CheerioCrawler` (through Apify Proxy by default).
 2. **Extracts** a quote in three tiers, from most to least reliable:
    - schema.org `Product`/`Offer` JSON-LD (including `@graph` and `AggregateOffer`)
@@ -13,6 +14,8 @@ I work in procurement digitalization, where comparing quotes by hand (copy price
    - visible-text heuristics (price + currency, "in stock", "delivery in 3–5 days", including Czech wording)
    
    Every quote records which tier it came from, so a buyer knows how much to trust it.
+   
+   In search mode, pages are only accepted if they have structured product data **and** the product name matches the search (every model number must appear, e.g. "MX Master 3" or "MX Anywhere 3S" are rejected when searching for "MX Master 3S"). Rejected pages are listed with the reason.
 3. **Ranks** the offers with a transparent weighted score (price 60%, delivery 25%, stock 15%; out-of-stock offers are penalized).
 4. **Summarizes** with Claude: recommendation, comparison table, and risks such as "these two listings may not be the same item" or "this price came from page text". With no API key, a rule-based summary is produced instead, so the Actor works either way.
 
@@ -20,7 +23,12 @@ I work in procurement digitalization, where comparing quotes by hand (copy price
 
 | Field | Required | Description |
 |---|---|---|
-| `productUrls` | yes | Two or more product pages for the same item |
+| `productQuery` | one of these two | Product name with model number, e.g. `Logitech MX Master 3S` |
+| `productUrls` | one of these two | Two or more product pages for the same item (skips search) |
+| `countryCode` | no | Google country to search in (default `cz`) |
+| `searchSuffix` | no | Word added to the search to favour shops (default `cena`) |
+| `maxShops` | no | Shop pages to compare (default 6) |
+| `excludeDomains` | no | Extra domains to skip in search results |
 | `quantity` | no | Units needed; used for totals (default 1) |
 | `requirements` | no | Plain-language needs, e.g. "needed within 5 days" |
 | `anthropicApiKey` | no | Enables the Claude write-up (stored as a secret) |
@@ -30,7 +38,9 @@ I work in procurement digitalization, where comparing quotes by hand (copy price
 ## Output
 
 - **Dataset:** one row per quote: rank, supplier, product, unit price, currency, total, stock, delivery days, score, data source, URL.
-- **Key-value store:** `COMPARISON.md` (the write-up) and `OUTPUT` (JSON summary with the recommended quote).
+- **Key-value store:** `COMPARISON.md` (the write-up) and `OUTPUT` (JSON summary with the recommended quote, rejected pages and skipped search results with reasons).
+
+See [`examples/`](examples/) for real runs.
 
 ## Run it
 
@@ -45,7 +55,8 @@ apify push          # deploy to your Apify account
 
 - Sites that render prices with JavaScript only, or block bots hard, need a `PlaywrightCrawler` variant; this version uses plain HTTP.
 - No currency conversion: mixed currencies are flagged, not converted.
-- It trusts that the URLs are the same product; Claude is asked to flag mismatches, but it is a check, not a guarantee.
+- Product matching is name-based. It catches wrong models, but not every variant (colour, Bluetooth vs. receiver bundle); Claude is asked to flag those, but it is a check, not a guarantee.
+- Search mode depends on what Google ranks; big shops that block scrapers will show up as rejected pages.
 
 ## How it was built
 
