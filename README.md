@@ -57,6 +57,7 @@ apify push          # deploy to your Apify account
 - No currency conversion: mixed currencies are flagged, not converted.
 - Product matching is name-based. It catches wrong models, but not every variant (colour, Bluetooth vs. receiver bundle); Claude is asked to flag those, but it is a check, not a guarantee.
 - Search mode depends on what Google ranks; big shops that block scrapers will show up as rejected pages.
+- Search results can mix currencies and product variants (kits, bundles). A single-currency filter and exclude-words are the next step.
 
 ## How it was built
 
