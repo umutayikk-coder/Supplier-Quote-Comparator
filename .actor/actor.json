@@ -1,0 +1,38 @@
+{
+    "actorSpecification": 1,
+    "name": "supplier-quote-comparator",
+    "title": "Supplier Quote Comparator",
+    "description": "Finds shops selling a product, scrapes their offers and writes an RFQ-style comparison with a recommendation.",
+    "version": "0.1",
+    "buildTag": "latest",
+    "input": "./input_schema.json",
+    "dockerfile": "./Dockerfile",
+    "storages": {
+        "dataset": {
+            "actorSpecification": 1,
+            "views": {
+                "overview": {
+                    "title": "Ranked quotes",
+                    "transformation": {
+                        "fields": ["rank", "supplier", "name", "price", "currency", "totalPrice", "availability", "deliveryDays", "score", "url"]
+                    },
+                    "display": {
+                        "component": "table",
+                        "properties": {
+                            "rank": { "label": "#", "format": "number" },
+                            "supplier": { "label": "Supplier", "format": "text" },
+                            "name": { "label": "Product", "format": "text" },
+                            "price": { "label": "Unit price", "format": "number" },
+                            "currency": { "label": "Currency", "format": "text" },
+                            "totalPrice": { "label": "Total", "format": "number" },
+                            "availability": { "label": "Stock", "format": "text" },
+                            "deliveryDays": { "label": "Delivery (days)", "format": "object" },
+                            "score": { "label": "Score", "format": "number" },
+                            "url": { "label": "Link", "format": "link" }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
